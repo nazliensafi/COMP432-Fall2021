@@ -1,1 +1,33 @@
+Compare the performance of 8 classifiers across 8 classification datasets.
 
+Classification models
+You should evaluate the following 8 classification models:
+
+Logistic regression (for classification)
+Support vector classification
+Decision tree classification
+Random forest classification
+k-nearest neighbours classification
+AdaBoost classification
+Gaussian naive Bayes classification
+Neural network classification
+Each is provided by scikit-learn under a unified interface. For example, MLPClassifier implements a fully-connected neural network classifier (also called a multi-layer perceptron, or MLP), and GaussianNB implements a Gaussian naive Bayes classifier. The AdaBoostClassifier implements AdaBoost for classification, for which using the default base_estimator is OK to use. Despite the name, logistic regression is a classifier.
+
+Classification datasets
+Evaluate each of the above classification models on each the following UCI datasets:
+
+Diabetic Retinopathy
+Default of credit card clients
+Breast Cancer Wisconsin
+Statlog (German credit data) (recommend german.doc for instructions and german-numeric for data.)
+Adult
+Yeast
+Thoracic Surgery Data
+Seismic-Bumps
+You'll need to read the data set descriptions to discern which fields should be features (inputs) and which are class labels to be predicted (outputs). If a dataset does not come with an explicit train/test split, then you will have to ensure your methodology can still evaluate the performance of the model on held-out data.
+
+Many datasets contain categorical features encoded as numbers, such as:
+
+education: 1 = graduate school; 2 = university; 3 = high school; 4 = other
+
+Some models (e.g., SVMs) are sensitive to how categorical features are encoded, while others are less sensitive (e.g., decision trees). Think carefully how you want to address this concern in your experiments, because it may impact your final ranking of the learning algorithms.
