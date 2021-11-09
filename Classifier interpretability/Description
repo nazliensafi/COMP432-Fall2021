@@ -1,0 +1,9 @@
+Here you'll work with a classic image dataset. Your group should train two types of model: a decision tree, and a convolutional neural network. You then decide "which model is more interpretable?" and report conclusions.
+
+In steps:
+
+download and process the CIFAR-10 dataset, a standard image dataset;
+train a convolutional neural network (CNN) classifier using PyTorch;
+train a decision tree classifier;
+try to interpret the decision tree; and
+try to interpret the CNN using the 'activation maximization' technique.
