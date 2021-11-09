@@ -1,0 +1,26 @@
+Compare the performance of 8 regressors across 8 regression datasets.
+
+Regression models
+You should evaluate the following 8 regression models:
+
+Linear regression
+Support vector regression
+Decision tree regression
+Random forest regression
+kk-nearest neighbours regression
+AdaBoost regression
+Gaussian process regression
+Neural network regression
+Again, each is provided by scikit-learn with a unified interface: MLPRegressor, SVR, AdaBoostRegressor, etc. The only new one is GaussianProcessRegressor (unrelated to Gaussian naive Bayes).
+
+Regression datasets
+Evaluate each of the above regression models on each of the following the UCI repository:
+
+Wine Quality
+Communities and Crime
+QSAR aquatic toxicity
+Facebook metrics
+Bike Sharing (use hour data)
+Student Performance (use just student-por.csv if you do not know how to merge the math grades)
+Concrete Compressive Strength
+SGEMM GPU kernel performance (predict how fast two matrices can be multiplied by a GPU)
