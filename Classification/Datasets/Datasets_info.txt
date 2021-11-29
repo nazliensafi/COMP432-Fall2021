@@ -1,0 +1,77 @@
+Datasets:
+	Data type: 
+	Class: 
+	File type: 
+	Test/Train Split: 
+	Target Column: 
+	Missing values: 
+
+Diabetic Retinopathy | Predict if an image shows diabetic retinopathy
+	Data type: Numeric
+	Class: Binary
+	File type: .arff
+	Test/Train Split: No
+	Target Column: -1
+	Missing values: None
+	Notes: 
+
+Default of credit card clients | Predict if someone will default on a payment
+	Data type: Numeric
+	Class: Binary
+	File type: .xls
+	Test/Train Split: No
+	Target Column: -1
+	Missing values: None
+
+Breast Cancer Wisconsin | Predict if an image shows breast cancer
+	Data type: Numeric
+	Class: Binary (2/4)
+	File type: text
+	Test/Train Split: No
+	Target Column: -1
+	Missing values: '?'
+	Notes: Needs to be weighted? First column possibly delete
+
+Statlog | Predict if someone's credit is good or bad
+	Data type: Numeric
+	Class: Binary (1/2)
+	File type: text
+	Test/Train Split: No
+	Target Column: -1
+	Missing values: None
+	Notes: Needs cost matrix
+
+Adult | Predict if someone's income is below or above 50k
+	Data type: Categorical / Numeric
+	Class: Binary (Categorical)
+	File type: text
+	Test/Train Split: Yes 
+	Target Column: -1
+	Missing values: '?'
+
+Yeast | Predict the location of proteins
+	Data type: Numeric (if first column removed)
+	Class: Multi (Categorical)
+	File type: text
+	Test/Train Split: No
+	Target Column: -1
+	Missing values: None
+	Notes: First column probably delete
+
+Thoracic Surgery Data | Predict if patient will survive past one year
+	Data type: Categorical / Numeric
+	Class: Binary (Categorical)
+	File type: .arff
+	Test/Train Split: No
+	Target Column: -1
+	Missing values: None
+
+Seismic-Bumps | Predict if activity in a coal mine will cause a seismic bump next shift
+	Data type: Categorical / Numeric
+	Class: Binary
+	File type: .arff
+	Test/Train Split: 
+	Target Column: 
+	Missing values: None
+	Notes: Info & data in same file, ignore % and @
+
