@@ -116,7 +116,7 @@ CLASSIFIERS = {
 }
 
 
-def load_dataset(dataset_details, file_loc): # passingdataset_details instead of dataset
+def load_dataset(dataset, file_loc): # passingdataset_details instead of dataset
 
     '''
     Loads in a dataset according to type and load_params
@@ -125,9 +125,9 @@ def load_dataset(dataset_details, file_loc): # passingdataset_details instead of
     Separates out the last column as y
     '''
 
-    # metadata = dataset_details[dataset] # using dataset_details directly rather than metadata
-    filenames = dataset_details['file']
-    load_params = dataset_details['load_params']
+    #metadata = dataset_details[dataset] # using dataset_details directly rather than metadata``
+    filenames = dataset['file']
+    load_params = dataset['load_params']
 
     dfs = []
     for file in filenames:
@@ -141,7 +141,7 @@ def load_dataset(dataset_details, file_loc): # passingdataset_details instead of
             df = load_plaintext(file, **load_params)
         dfs.append(df)
         df = pd.concat(dfs)
-
+    
     X = df.values[:,:-1]
     y = df.values[:,-1]
 
@@ -176,7 +176,7 @@ def create_encoders(X, y):
     return X_enc, y_enc
 
 
-def preprocessor(X_enc, y_enc):
+def preprocessor(dataset_details):
 
     '''
     Loads encoded datasets in
@@ -187,15 +187,20 @@ def preprocessor(X_enc, y_enc):
     train_data = {}
     test_data = {}
     for dataset in dataset_details:
-       # X, y = load_dataset(dataset, file_loc) this is being done in get_X_and_y(dataset_details): line 119
+        X, y = load_dataset(dataset_details[dataset], file_loc) #this is being done in get_X_and_y(dataset_details): line 119
+        X_enc, y_enc = create_encoders(X, y)
         X_train, X_test, y_train, y_test = train_test_split(X_enc, y_enc, random_state=0)
         train_data[dataset] = {
             'X_train': X_train,
             'y_train': y_train,
+            'X_enc': X_enc,
+            'y_enc': y_enc
         }
         test_data[dataset] = {
             'X_test': X_test,
-            'y_test': y_test
+            'y_test': y_test,
+            'X_enc': X_enc,
+            'y_enc': y_enc
         }
     return train_data, test_data
 
@@ -254,9 +259,9 @@ def train_clf(clf_data, X_train, y_train):
 
 
 def main():
-    X, y = load_dataset(dataset_details, file_loc)
-    X_enc, y_enc = create_encoders(X, y)
-    train_data, test_data = preprocessor(X_enc, y_enc)
+    # X, y = load_dataset(dataset_details, file_loc)
+    # X_enc, y_enc = create_encoders(X, y)
+    train_data, test_data = preprocessor(dataset_details)
     models = train_classifiers(train_data, CLASSIFIERS)
 
 
