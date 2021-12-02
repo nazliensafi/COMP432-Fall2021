@@ -16,8 +16,10 @@ from sklearn.model_selection import train_test_split
 from scipy.io.arff import loadarff
 import pandas as pd
 
+#Relative path root for datasets
 file_loc = 'Classification\\Datasets\\'
 
+#Dataset metadata, includinding file name, params to send to the function reading the file, and cost matrices if applicable
 DATASET_DETAILS = {
     'credit':
         {
@@ -74,121 +76,131 @@ DATASET_DETAILS = {
             }
     }
     }
+
+#Classifier metadata, including classifier and hyperparameters once chosen
 CLASSIFIERS = {
     'logreg': {
         'clf': linear_model.LogisticRegression, 
-        'load_params': {}
+        'params': {}
     },
     'svc': {
         'clf': svm.SVC, 
-        'load_params': {}
+        'params': {}
     },
     'tree': {
         'clf': tree.DecisionTreeClassifier,
-        'load_params': {}
+        'params': {}
     },
     'forest': {
         'clf': ensemble.RandomForestClassifier,
-        'load_params': {}
+        'params': {}
     },        
     'kneighbors': {
         'clf': neighbors.KNeighborsClassifier,
-        'load_params': {}
+        'params': {}
     },
     'adaboost': {
         'clf': ensemble.AdaBoostClassifier,
-        'load_params': {}
+        'params': {}
     },
     'nb': {
         'clf': naive_bayes.GaussianNB,
-        'load_params': {}
+        'params': {}
     },
     'neural': {
         'clf': neural_network.MLPClassifier,
-        'load_params': {}
+        'params': {}
     }
 }
 
+
+def preprocessor(DATASET_DETAILS):
+    '''Loads all datasets in and standardizes to dataframe or np array, then splits into train and testing data'''
+    train_data = {}
+    test_data = {}
+    for dataset in DATASET_DETAILS:
+        X, y = load_dataset(dataset, file_loc)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+        train_data[dataset] = {
+            'X_train': X_train,
+            'y_train': y_train,
+        }
+        test_data[dataset] = {
+            'X_test': X_test,
+            'y_test': y_test
+        }
+    return train_data, test_data
+
 def load_dataset(dataset, file_loc):
     '''
-    Split:
-        If split, read test and train separately (or combine?)
-    Types: (pandas.read_csv vs pandas.read_excel)
-        .xls
-        .data / .data-numeric
-        .arff
-    if not xls:
-        Comments:
-            If read_csv: comments=dataset['comments']
-        Index_col:
-            If index_col: index_col=dateset['index_col'] 
-        Missing_values:
-            If missing_values: na_filter=dataset['missing_values']
-    Data:
-        if data = Mixed: split and call OneHotEncoder + StandardScaler
-        If data = Mumeric: call StandardScaler
-    Label:
-        if label=categorical: label=LabelEncoder(label)
-    *Weighted:
-        if weighted: use cost_matrix (?)
+    Loads in a dataset according to type and load_params. Assumes dataset file is either .xls, .arff, or plain text.
+    If test and train are pre-split, assumes they are the same file type and combines for preprocessing.
+    Separates out the last column as y.
     '''
     metadata = DATASET_DETAILS[dataset]
     filenames = metadata['file']
     load_params = metadata['load_params']
 
-    extension = filenames[0].split('.')[1] #Get file type - ASSUMPTION: If split into test and train, both are the same type
-    if extension == 'xls': 
-        df = load_excel(filenames, file_loc, **load_params)
-    elif extension == 'arff':
-        df = load_arff(filenames, file_loc)
-    else:
-        df = load_plaintext(file_loc, filenames, **load_params)
+    dfs = []
+    for file in filenames:
+        extension = file.split('.')[1] #Get file type
+        file = f'{file_loc}{file}'
+        if extension == 'xls': 
+            df = load_excel(file, **load_params)
+        elif extension == 'arff':
+            df = load_arff(file)
+        else:
+            df = load_plaintext(file, **load_params)
+        dfs.append(df)
+        df = pd.concat(dfs)
 
     X = df.values[:,:-1]
     y= df.values[:,-1]
-    print(X)
+    
     return X, y
 
-def load_excel(filenames, file_loc, **kwargs):
-
-    df = pd.read_excel(
-        f'{file_loc}{filenames[0]}', dtype=None, engine='xlrd', **kwargs
-        )
-
-    if len(filenames)>1: #If test and train are split, append them for preprocessing
-        test = pd.read_csv(
-            f'{file_loc}{filenames[1]}', dtype=None, engine='xlrd', **kwargs
-            )
-        df = pd.concat([df,test])
+def load_excel(file,  **kwargs):
+    df = pd.read_excel(file, dtype=None, engine='xlrd', **kwargs)
 
     return df
 
-def load_arff(filenames, file_loc):
-    df = loadarff(f'{file_loc}{filenames[0]}')[0]
+def load_arff(file):
+    df = loadarff(file)
     df = pd.DataFrame(df, dtype=None)
-    if len(filenames)>1:
-        test = loadarff(f'{file_loc}{filenames[1]}')[0]
-        df = np.vstack([df,test])
 
     return df
 
-def load_plaintext(file_loc, filenames, **kwargs):
-
-    df = pd.read_csv(
-        f'{file_loc}{filenames[0]}', header=None, dtype=None, **kwargs
-        )
-
-    if len(filenames)>1: #If test and train are split, append them for preprocessing
-        test = pd.read_csv(
-            f'{file_loc}{filenames[1]}', header=None, dtype=None, **kwargs
-            )
-        df = pd.concat([df,test])
-
+def load_plaintext(file, **kwargs):
+    df = pd.read_csv(file, header=None, dtype=None, **kwargs)
     df.dropna()
 
     return df
 
+def train_classifiers(data, CLASSIFIERS):
+    '''Trains every classifier on every dataset'''
+    models = {}
+    for clf in CLASSIFIERS:
+        for dataset in data:
+            model = train_clf(CLASSIFIERS[clf], data[dataset]['X_train'], data[dataset]['y_train'])
+            models[clf][dataset] = model
+    
+    return models
+
+def train_clf(clf_data, X_train, y_train):
+    '''Trains a given classifier on a given dataset.'''
+    X_enc, y_enc = create_encoders(X_train, y_train)
+    X = X_enc.fit_transform(X_train)
+    if y_enc:
+        y = y_enc.fit_transform(y_train)
+    clf = clf_data['clf']
+    load_params = clf_data['load_params']
+
+    model = clf.fit(X_train,y_train, **load_params)
+
+    return model
+
 def create_encoders(X, y):
+    '''Splits dataset into numerical and categorical data and creates relevant encoders for both features and labels.'''
     cat_enc = OneHotEncoder(handle_unknown='ignore')
     num_enc = StandardScaler()
 
@@ -209,47 +221,10 @@ def create_encoders(X, y):
 
     return X_enc, y_enc
 
-def train_classifiers(data, CLASSIFIERS):
-    models = {}
-    for clf in CLASSIFIERS:
-        for dataset in data:
-            model = train_clf(CLASSIFIERS[clf], data[dataset]['X_train'], data[dataset]['y_train'])
-            models[clf][dataset] = model
-    
-    return models
-
-def train_clf(clf_data, X_train, y_train):
-    X_enc, y_enc = create_encoders(X_train, y_train)
-    X = X_enc.fit_transform(X_train)
-    if y_enc:
-        y = y_enc.fit_transform(y_train)
-    clf = clf_data['clf']
-    load_params = clf_data['load_params']
-
-    model = clf.fit(X_train,y_train, **load_params)
-
-    return model
-
-def preprocessor(DATASET_DETAILS):
-    train_data = {}
-    test_data = {}
-    for dataset in DATASET_DETAILS:
-        X, y = load_dataset(dataset, file_loc)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-        train_data[dataset] = {
-            'X_train': X_train,
-            'y_train': y_train,
-        }
-        test_data[dataset] = {
-            'X_test': X_test,
-            'y_test': y_test
-        }
-    return train_data, test_data
 
 def main():
     train_data, test_data = preprocessor(DATASET_DETAILS)
     models = train_classifiers(train_data, CLASSIFIERS)
-    print("done")
 
 if __name__ == "__main__":
     main()
