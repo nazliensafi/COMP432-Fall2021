@@ -254,24 +254,11 @@ def train_clf(clf_data, X_train, y_train):
 
 
 def main():
-    train_data, test_data = preprocessor(dataset_details)
+    X, y = load_dataset(dataset_details, file_loc)
+    X_enc, y_enc = create_encoders(X, y)
+    train_data, test_data = preprocessor(X_enc, y_enc)
     models = train_classifiers(train_data, CLASSIFIERS)
 
-
-if __name__ == "__main__":
-    main()
-
-    y_enc = None
-
-    if y.dtypes=='int64' or y.dtypes=='float32':
-        y_enc = LabelEncoder(y).fit
-
-    return X_enc, y_enc
-
-
-def main():
-    train_data, test_data = preprocessor(DATASET_DETAILS)
-    models = train_classifiers(train_data, CLASSIFIERS)
 
 if __name__ == "__main__":
     main()
