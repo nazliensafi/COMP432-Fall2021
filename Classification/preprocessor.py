@@ -15,7 +15,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from scipy.io.arff import loadarff
 import pandas as pd
-import arff
+import scipy
 
 
 def load_dataset(dataset, file_loc): # passingdataset_details instead of dataset
@@ -97,8 +97,8 @@ def preprocessor(dataset_details, file_loc):
         X, y = load_dataset(dataset_details[dataset], file_loc)
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
         if dataset=='breast_cancer': 
-            X_train = np.nan_to_num(X,nan=10)
-            X_test = np.nan_to_num(X,nan=10)
+            X_train = X_train.fillna(value=10)
+            X_test = X_test.fillna(value=10)
         train_data[dataset] = {
             'X_train': X_train,
             'y_train': y_train
@@ -156,7 +156,7 @@ def train_clf(clf_data, X, y):
     X_enc, y_enc = create_encoders(X, y)
     X_enc_model = X_enc.fit(X)
     X = X_enc_model.transform(X)
-    if isinstance(X,pd.DataFrame):
+    if scipy.sparse.issparse(X):
         X = X.toarray()
 
     if y_enc:
@@ -176,14 +176,14 @@ def main():
 
 
     dataset_details = {
-        # 'credit':
-        #     {
-        #         'file': ['default of credit card clients.xls'],
-        #         'load_params': {
-        #             'index_col': 0,
-        #             'skiprows': 1
-        #         }
-        #     },
+        'credit':
+            {
+                'file': ['default of credit card clients.xls'],
+                'load_params': {
+                    'index_col': 0,
+                    'skiprows': 1
+                }
+            },
         'breast_cancer':
             {
                 'file': ['breast-cancer-wisconsin.data'],
@@ -193,43 +193,43 @@ def main():
                 },
                 'weighted': 'Y'
             },
-        # 'statlog':
-        #     {
-        #         'file': ['german.data-numeric'],
-        #         'load_params': {
-        #             'delim_whitespace': 'true'
-        #         },
-        #         'weighted': 'Y',
-        #     },
-        # 'adult':
-        #     {
-        #         'file': ['adult.data','adult.test'],
-        #         'load_params': {
-        #             'na_values': '?',
-        #             'comment': '|'
-        #         }
-        #     },
+        'statlog':
+            {
+                'file': ['german.data-numeric'],
+                'load_params': {
+                    'delim_whitespace': 'true'
+                },
+                'weighted': 'Y',
+            },
+        'adult':
+            {
+                'file': ['adult.data','adult.test'],
+                'load_params': {
+                    'na_values': '?',
+                    'comment': '|'
+                }
+            },
         'yeast': {
             'file': ['yeast.data'],
             'load_params': {
                 'index_col': 0,
                 'delim_whitespace': 'true'
             }
+        },
+        'thoracic': {
+            'file': ['ThoraricSurgery.arff'],
+            'load_params': {}
+        },
+        'seismic': {
+            'file': ['seismic-bumps.arff'],
+            'load_params': {}
+        },
+        'retinopathy': {
+            'file': ['messidor_features.arff'],
+            'load_params': {
+                'comment': '@'
+            }
         }
-        # 'thoracic': {
-        #     'file': ['ThoraricSurgery.arff'],
-        #     'load_params': {}
-        # },
-        # 'seismic': {
-        #     'file': ['seismic-bumps.arff'],
-        #     'load_params': {}
-        # },
-        # 'retinopathy': {
-        #     'file': ['messidor_features.arff'],
-        #     'load_params': {
-        #         'comment': '@'
-        #     }
-        # }
     }
 
     # Classifier metadata, including classifier and hyperparameters once chosen
