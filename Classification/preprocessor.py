@@ -274,3 +274,23 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def test_classifiers(data, models):
+    for clf in models:
+        for dataset in models[clf]:
+            test_clf(models[clf][dataset], data['X_test'], data['y_test'])
+
+def test_clf(model, X, y):
+    X = model['X_enc'].transform(X_test)
+    
+    if scipy.sparse.issparse(X):
+        X = X.toarray()
+    if model.get('y_enc'):
+        y = model['y_enc'].transform(y)
+        
+    print(model.score(X,y))
+    
+X_test = test_data['breast_cancer']['X_test']
+y_test = test_data['breast_cancer']['y_test']
+model = train_clf(CLASSIFIERS['logreg'],train_data['breast_cancer']['X_train'],train_data['breast_cancer']['y_train'])
+test_clf = (model,X_test,y_test)
