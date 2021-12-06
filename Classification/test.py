@@ -4,9 +4,10 @@ import numpy as np
 import os
 import sklearn as sk
 from sklearn import linear_model, tree, svm, ensemble, neighbors, naive_bayes, neural_network
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler, LabelEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, RepeatedStratifiedKFold
+from sklearn.impute import SimpleImputer
 from scipy.io.arff import loadarff
 import pandas as pd
 import scipy
@@ -73,39 +74,56 @@ dataset_details = {
 }
 
 # Classifiers used - params will be filled in with the chosen hyperparameters
+# Classifiers used and their subset of hyperparameters chosen to test with gridsearch
 CLASSIFIERS = {
     'logreg': {
         'clf': linear_model.LogisticRegression,
-        'params': {}
+        'param_grid': {
+            'penalty' : ['l1', 'l2'],
+            'C' : [np.logspace(-4, 4, 20)]
+        },
+        'params': {
+            'random_state': 0
+        }
     },
     'tree': {
         'clf': tree.DecisionTreeClassifier,
-        'params': {}
+        'param_grid': {
+            'criterion': ['gini','entropy'],
+            'min_samples_split': [5,10,50,100],
+            'min_samples_leaf': [1, 2, 4],
+            'max_depth': [1,5,10,50,100,None]
+        },
+        'params': {
+            'random_state': 0
+        }
     },
     'kneighbors': {
         'clf': neighbors.KNeighborsClassifier,
+        'param_grid': {
+            'leaf_size': list(range(1,50)),
+            'n_neighbors': list(range(1,30)),
+            'p': [1,2]
+        },
         'params': {}
     },
     'adaboost': {
         'clf': ensemble.AdaBoostClassifier,
-        'params': {}
+        'param_grid': {
+            'n_estimators': [10, 50, 100, 500],
+            'learning_rate': [0.0001, 0.001, 0.01, 0.1, 1.0]
+            },
+        'params': {
+            'random_state': 0
+        }
     },
     'nb': {
         'clf': naive_bayes.GaussianNB,
+        'param_grid': {
+            'var_smoothing': [np.logspace(0,-9, num=100)]
+        },        
         'params': {}
     }
-    # 'forest': {
-    #     'clf': ensemble.RandomForestClassifier,
-    #     'params': {}
-    # },
-    # 'neural': {
-    #     'clf': neural_network.MLPClassifier,
-    #     'params': {}
-    # },
-    # 'svc': {
-    #     'clf': svm.SVC,
-    #     'params': {}
-    # }
 }
 ### Preprocessing the data
 def preprocessor(dataset_details, file_loc):
@@ -182,7 +200,6 @@ def load_plaintext(file, **kwargs):
     df.dropna()
     return df
 
-train_data, test_data = preprocessor(dataset_details, file_loc)
 ### Train Data
 def train_classifiers(data, CLASSIFIERS):
 
@@ -195,11 +212,12 @@ def train_classifiers(data, CLASSIFIERS):
         models[clf]={}
         for dataset in data:
             print("Training ",clf," on ",dataset)
-            model, X_enc, y_enc = train_clf(CLASSIFIERS[clf], data[dataset]['X_train'], data[dataset]['y_train'])
+            model, X_enc, y_enc, X_imp = train_clf(CLASSIFIERS[clf], data[dataset]['X_train'], data[dataset]['y_train'])
             models[clf][dataset] = {
                 'model': model,
                 'X_enc': X_enc,
-                'y_enc': y_enc
+                'y_enc': y_enc,
+                'X_imp': X_imp
             }
         
 
@@ -210,7 +228,6 @@ def train_clf(clf_data, X, y):
     '''
     Trains a given classifier on a given dataset
     '''
-    
     X_enc, y_enc = encode_or_scale(X, y)
     X = X_enc.transform(X)
     
@@ -219,12 +236,14 @@ def train_clf(clf_data, X, y):
     if y_enc:
         y = y_enc.transform(y)
 
-
-    clf = clf_data['clf']
+    imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+    X_imp = imp.fit(X)
+    X = X_imp.transform(X)
     params = clf_data['params']
+    clf = clf_data['clf']
     model = clf(**params).fit(X,y)
     
-    return model, X_enc, y_enc
+    return model, X_enc, y_enc, X_imp
 
 def encode_or_scale(X, y):
 
@@ -234,7 +253,7 @@ def encode_or_scale(X, y):
     '''
 
     cat_enc = OneHotEncoder(handle_unknown='ignore')
-    num_enc = MinMaxScaler()
+    num_enc = StandardScaler()
 
     cat_features = X.select_dtypes(include=['object']).columns
     num_features =X.select_dtypes(include=['int64', 'float64']).columns
@@ -260,10 +279,6 @@ def encode_or_scale(X, y):
 
     return X_enc, y_enc
     
-# models = train_classifiers(train_data, CLASSIFIERS)
-
-### Choose Hyperparameters
-
 ### Test Models
 def test_classifiers(data, models):
     for clf in models:
@@ -282,9 +297,30 @@ def test_clf(models, X, y):
     print(model)
     print(model.score(X,y))
     
+def find_hyperparams(model, classifier_details, X, y):
+
+    param_grid = classifier_details['param_grid']
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=0)
+    search = GridSearchCV(model, param_grid, cv=cv, n_jobs=-1)
+
+    result = search.fit(X, y)
+
+    return result.best_params_
+
+def find_all_hyperparams(data, models, classifiers):
+    for clf in models:
+        for dataset in models[clf]:
+            hps = find_hyperparams(models[clf][dataset], classifiers[clf], data[dataset]['X_train'], data[dataset]['y_train'])
+            classifiers[clf]['final_params'] = hps
+
+
 train_data, test_data = preprocessor(dataset_details, file_loc)
 models = train_classifiers(train_data, CLASSIFIERS)
+find_all_hyperparams(train_data,models,CLASSIFIERS)
 test_classifiers(test_data, models)
+
+
+
 
 
 
