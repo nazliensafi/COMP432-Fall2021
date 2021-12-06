@@ -1,3 +1,23 @@
+logreg
+{'C': 0.1, 'random_state': 0}
+{'C': 1.0, 'random_state': 0}
+{'C': 1.0, 'random_state': 0}
+{'C': 0.1, 'random_state': 0}
+{'C': 0.1, 'random_state': 0}
+{'C': 0.01, 'random_state': 0}
+{'C': 100, 'random_state': 0}
+{'C': 0.1, 'random_state': 0}
+
+tree
+{'max_depth': 5, 'min_samples_split': 2, 'random_state': 0}
+{'max_depth': 5, 'min_samples_split': 2, 'random_state': 0}
+{'max_depth': 5, 'min_samples_split': 10, 'random_state': 0}
+{'max_depth': 5, 'min_samples_split': 2, 'random_state': 0}
+{'max_depth': 5, 'min_samples_split': 10, 'random_state': 0}
+{'max_depth': 5, 'min_samples_split': 2, 'random_state': 0}
+{'max_depth': 5, 'min_samples_split': 10, 'random_state': 0}
+{'max_depth': 10, 'min_samples_split': 5, 'random_state': 0}
+
 kneighbours
 {'leaf_size': 1, 'n_neighbors': 30, 'p': 2}
 {'leaf_size': 1, 'n_neighbors': 10, 'p': 2}
@@ -15,3 +35,17 @@ adaboost
 {'learning_rate': 0.01, 'n_estimators': 500}
 {'learning_rate': 0.0001, 'n_estimators': 10}
 {'learning_rate': 0.1, 'n_estimators': 500}
+
+
+svc
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+{'C': 1.0, 'kernel': 'rbf'}
+
+https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
+https://datascience.stackexchange.com/questions/36049/how-to-adjust-the-hyperparameters-of-mlp-classifier-to-get-more-perfect-performa
