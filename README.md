@@ -3,9 +3,9 @@ Default Project for Machine Learning
 
 Authors:
 
-Mathhew Massey : 
-Nazli Ensafi :
-Virginia Brandon : 
+Mathhew Massey : 40061791
+Nazli Ensafi : 40038607
+Virginia Brandon : 40066200
 Yuvraj Singh Athwal : 40075586
 
 The files for the specific part of the assignment are in the specific folders, namely Classifiers, Classifier Interpretibility, and Regression.
