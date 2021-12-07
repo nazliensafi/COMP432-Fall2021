@@ -1,0 +1,54 @@
+dataset_details = {
+    'credit':
+        {
+            'file': ['default of credit card clients.xls'],
+            'load_params': {
+                'index_col': 0,
+                'skiprows': 1
+            }
+        },
+    'breast_cancer':
+        {
+            'file': ['breast-cancer-wisconsin.data'],
+            'load_params': {
+                'na_values': '?',
+                'index_col': 0
+            }
+        },
+    'statlog':
+        {
+            'file': ['german.data-numeric'],
+            'load_params': {
+                'delim_whitespace': 'true'
+            }
+        },
+    'adult':
+        {
+            'file': ['adult.data','adult.test'],
+            'load_params': {
+                'na_values': '?',
+                'comment': '|'
+            }
+        },
+    'yeast': {
+        'file': ['yeast.data'],
+        'load_params': {
+            'index_col': 0,
+            'delim_whitespace': 'true'
+        }
+    },
+    'thoracic': {
+        'file': ['ThoraricSurgery.arff'],
+        'load_params': {}
+    },
+    'seismic': {
+        'file': ['seismic-bumps.arff'],
+        'load_params': {}
+    },
+    'retinopathy': {
+        'file': ['messidor_features.arff'],
+        'load_params': {
+            'comment': '@'
+        }
+    }
+}
